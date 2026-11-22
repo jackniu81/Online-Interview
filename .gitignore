@@ -1,0 +1,18 @@
+docs\
+node_modules\
+.DS_Store
+
+# python ignores
+__pycache__/
+.venv/
+
+# node.js
+node_modules/
+
+# env & runtime data
+.env
+admin/data/
+frontend/dist/
+docs/
+.qoder/
+.trae/
