@@ -5,13 +5,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db import dispose_db, init_db
-from app.routers import admin_auth, exams, questions
+from app.routers import admin_auth, exam_taking, exams, questions
+from app.services import autosubmit
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    await autosubmit.restore_timers()  # task 6.3: recover unfinished exams after restart
     yield
+    autosubmit.cancel_all()
     await dispose_db()
 
 
@@ -34,3 +37,4 @@ async def health() -> dict:
 app.include_router(admin_auth.router)
 app.include_router(questions.router)
 app.include_router(exams.router)
+app.include_router(exam_taking.router)

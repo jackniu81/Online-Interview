@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { getAdminToken } from './lib/api'
+import AdminExamDetail from './pages/AdminExamDetail'
 import AdminExams from './pages/AdminExams'
 import AdminLayout from './pages/AdminLayout'
 import AdminLogin from './pages/AdminLogin'
@@ -25,7 +26,7 @@ export default function App() {
         }
       >
         <Route path="exams" element={<AdminExams />} />
-        <Route path="exams/:id" element={<AdminExams />} />
+        <Route path="exams/:id" element={<AdminExamDetail />} />
         <Route path="questions" element={<AdminQuestions />} />
       </Route>
       <Route path="/exam" element={<ExamEntry />} />

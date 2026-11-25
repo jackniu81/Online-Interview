@@ -29,12 +29,12 @@ def create_admin_token() -> str:
     return jwt.encode(payload, get_settings().jwt_secret, algorithm="HS256")
 
 
-def create_exam_token(exam_id: int) -> str:
+def create_exam_token(exam_id: int, duration_minutes: int) -> str:
     # valid for exam duration + 10 min buffer (server clocks are authoritative anyway)
     payload = {
         "sub": str(exam_id),
         "aud": EXAM_AUD,
-        "exp": _now() + timedelta(minutes=24 * 60),
+        "exp": _now() + timedelta(minutes=duration_minutes + 10),
     }
     return jwt.encode(payload, get_settings().jwt_secret, algorithm="HS256")
 

@@ -38,15 +38,22 @@ export interface ExamListItem {
 export interface ExamDetail extends ExamListItem {
   candidate_phone: string | null
   started_at: string | null
-  link: string
-  recording_available: boolean
-  proctoring_events: { event_type: string; occurred_at: string }[]
   questions: {
     sort_order: number
     question_content: string
     answer_text: string | null
+    submitted_at: string | null
     score: number | null
     feedback: string | null
     grading_status: string
   }[]
+}
+
+export interface ExamCreateResult {
+  id: number
+  email: string
+  question_count: number
+  duration_minutes: number
+  created_at: string
+  link: string
 }
