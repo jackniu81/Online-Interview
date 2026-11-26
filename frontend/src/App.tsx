@@ -6,6 +6,7 @@ import AdminLayout from './pages/AdminLayout'
 import AdminLogin from './pages/AdminLogin'
 import AdminQuestions from './pages/AdminQuestions'
 import ExamEntry from './pages/ExamEntry'
+import ExamTaking from './pages/ExamTaking'
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   if (!getAdminToken()) return <Navigate to="/admin/login" replace />
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="questions" element={<AdminQuestions />} />
       </Route>
       <Route path="/exam" element={<ExamEntry />} />
+      <Route path="/exam/taking" element={<ExamTaking />} />
     </Routes>
   )
 }

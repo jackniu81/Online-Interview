@@ -9,8 +9,8 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, update
 
-from app.db import SessionLocal
-from app.models import Exam
+from app import db
+from app.models import Exam, ExamAnswer, GradingStatus
 
 TIMER_BUFFER_SECONDS = 5
 
@@ -30,15 +30,33 @@ def deadline_of(exam: Exam) -> datetime | None:
 
 async def auto_submit(exam_id: int) -> bool:
     """Finish the exam unconditionally; empty answers stay as-is. True if this call finished it."""
-    assert SessionLocal is not None
-    async with SessionLocal() as session:
-        result = await session.execute(
-            update(Exam)
-            .where(Exam.id == exam_id, Exam.completed_at.is_(None))
-            .values(completed_at=_now())
-        )
+    assert db.SessionLocal is not None
+    async with db.SessionLocal() as session:
+        finished = await finish_exam(session, exam_id)
         await session.commit()
-        return result.rowcount == 1
+        return finished
+
+
+async def finish_exam(session, exam_id: int) -> bool:
+    """Conditional hand-in; True only for the caller that wrote completed_at.
+
+    Unanswered questions become pending (empty answers are graded as 0/未作答 by
+    the grading queue, task 8.2) so the derived list status shows 评分中.
+    """
+    result = await session.execute(
+        update(Exam)
+        .where(Exam.id == exam_id, Exam.completed_at.is_(None))
+        .values(completed_at=_now())
+    )
+    if result.rowcount != 1:
+        return False
+    await session.execute(
+        update(ExamAnswer)
+        .where(ExamAnswer.exam_id == exam_id,
+               ExamAnswer.grading_status == GradingStatus.UNANSWERED.value)
+        .values(grading_status=GradingStatus.PENDING.value)
+    )
+    return True
 
 
 async def _run_auto_submit(exam_id: int) -> None:
@@ -85,9 +103,9 @@ async def ensure_not_timed_out(exam: Exam) -> bool:
 
 async def restore_timers() -> int:
     """On startup, re-schedule (or immediately run) timers for started, unfinished exams."""
-    assert SessionLocal is not None
+    assert db.SessionLocal is not None
     count = 0
-    async with SessionLocal() as session:
+    async with db.SessionLocal() as session:
         exams = (
             await session.scalars(
                 select(Exam).where(Exam.started_at.is_not(None), Exam.completed_at.is_(None))

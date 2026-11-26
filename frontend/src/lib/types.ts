@@ -57,3 +57,30 @@ export interface ExamCreateResult {
   created_at: string
   link: string
 }
+
+/** GET /exams/info?t=<link token> */
+export interface ExamInfoResponse {
+  completed: boolean
+  started?: boolean
+  question_count?: number
+  duration_minutes?: number
+  remaining_seconds?: number
+}
+
+/** POST /exams/begin */
+export interface ExamStartResult {
+  exam_id: number
+  session_token: string
+  started_at: string
+  remaining_seconds: number
+  question_count: number
+}
+
+/** GET /exams/current-question */
+export interface CurrentQuestion {
+  sort_order: number
+  question_content: string
+  question_number: number
+  question_count: number
+  remaining_seconds: number
+}
